@@ -133,7 +133,7 @@
     
     
      DownloadOperation *newOperation = [[DownloadOperation alloc] initWithLastSelectedView:self.lastSelectedView
-                                                                                 urlString:url delegate:self.lastSelectedView];
+                                                                                 urlString:url delegate:self];
     newOperation.timeoutValue = self.timeoutValue;
     
     [newOperation addObserver:self forKeyPath:@"isFinished"
@@ -203,22 +203,34 @@
     self.lastSelectedView = smallView;
 }
 
-//#pragma mark - AsyncURLConnectionDelegate Methods
-//
-//- (void)connectionUpdateInBytes:(NSUInteger)current forMaxBytes:(NSUInteger)max
-//{
-//    self.progressView.progress = (float)current / (float)max;
-//    //NSLog(@"Thead = %@: Appending data: bytes = %u / %u", [NSThread currentThread], current, max);
-//    if (current == max) {
-//        NSLog(@"Cache = %@", downloadCache);
-//        NSLog(@"Memory Usage = %u", [downloadCache currentMemoryUsage]);
-//        NSLog(@"Memory Capacity = %u", [downloadCache memoryCapacity]);
-//        NSLog(@"Disk Usage = %u", [downloadCache currentDiskUsage]);
-//        NSLog(@"Disk Capacity = %u", [downloadCache diskCapacity]);
-//        
-//    }
-//    
-//}
+#pragma mark - DownloadOperationDelegate Methods
+
+- (void)connectionUpdateInBytes:(NSUInteger)current forMaxBytes:(NSUInteger)max forView:(UIView *)aView
+{
+    ((SmallView *)aView).progressView.progress = (float)current / (float)max;
+    
+    //NSLog(@"Thead = %@: Appending data: bytes = %u / %u", [NSThread currentThread], current, max);
+    if (current == max) {
+        //        NSLog(@"Cache = %@", downloadCache);
+        //        NSLog(@"Memory Usage = %u", [downloadCache currentMemoryUsage]);
+        //        NSLog(@"Memory Capacity = %u", [downloadCache memoryCapacity]);
+        //        NSLog(@"Disk Usage = %u", [downloadCache currentDiskUsage]);
+        //        NSLog(@"Disk Capacity = %u", [downloadCache diskCapacity]);
+        
+    }
+    
+}
+
+- (void)downloadComplete:(NSData *)data forView:(UIView *)aView
+{
+    ((SmallView *)aView).imageView.image = [UIImage imageWithData:data];
+}
+
+- (void)timeoutOccuredForView:(UIView *)aView
+{
+    [[self class] showAlert:@"Timeout" withMessage:[NSString stringWithFormat:@"in quadrant %u.", ((SmallView *)aView).tag]];
+}
+
 
 #pragma mark - KVO Method
 
@@ -227,5 +239,20 @@
     //NSNumber *kind = [change objectForKey:NSKeyValueChangeKindKey];
 
 }
+
+#pragma mark - Utility Methods
+
++ (void)showAlert:(NSString *)theTitle withMessage:(NSString *)theMessage
+{
+    UIAlertView *av = [[UIAlertView alloc] initWithTitle:theTitle
+                                                 message:theMessage
+                                                delegate:nil
+                                       cancelButtonTitle:@"OK"
+                                       otherButtonTitles:nil];
+    [av show];
+}
+
+
+
 
 @end

@@ -50,22 +50,4 @@
 }
 
 
-#pragma mark - AsyncURLConnectionDelegate Methods
-
-- (void)connectionUpdateInBytes:(NSUInteger)current forMaxBytes:(NSUInteger)max
-{
-    self.progressView.progress = (float)current / (float)max;
-    //NSLog(@"Thead = %@: Appending data: bytes = %u / %u", [NSThread currentThread], current, max);
-    if (current == max) {
-//        NSLog(@"Cache = %@", downloadCache);
-//        NSLog(@"Memory Usage = %u", [downloadCache currentMemoryUsage]);
-//        NSLog(@"Memory Capacity = %u", [downloadCache memoryCapacity]);
-//        NSLog(@"Disk Usage = %u", [downloadCache currentDiskUsage]);
-//        NSLog(@"Disk Capacity = %u", [downloadCache diskCapacity]);
-        
-    }
-    
-}
-
-
 @end

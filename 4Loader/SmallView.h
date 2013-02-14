@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "ASyncURLConnection.h"
 
 @class SmallView;
 
@@ -16,7 +15,7 @@
 - (void)viewWasSelected:(SmallView *)smallView withNumberOfTaps:(NSInteger)tapCount;
 
 @end
-@interface SmallView : UIView <ASyncURLConnectionDelegate>
+@interface SmallView : UIView
 
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @property (weak, nonatomic) IBOutlet UIProgressView *progressView;

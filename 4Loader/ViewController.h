@@ -11,7 +11,7 @@
 #import "SmallView.h"
 #import "DownloadOperation.h"
 
-@interface ViewController : UIViewController <SmallViewDelegate>
+@interface ViewController : UIViewController <SmallViewDelegate, DownloadOperationDelegate>
 
 
 @property (weak, nonatomic) IBOutlet UITextField *urlTextField;

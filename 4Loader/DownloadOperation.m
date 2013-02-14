@@ -17,7 +17,6 @@
     BOOL    finished;
     
     NSThread *timerThread;
-    id<ASyncURLConnectionDelegate> asychDelegate_;
     SmallView *lastSelectedView_;
     NSString *urlString_;
 }
@@ -28,12 +27,14 @@
 
 @implementation DownloadOperation
 
-- (id)initWithLastSelectedView:(SmallView *)selectedView urlString:(NSString *)url delegate:(id<ASyncURLConnectionDelegate>)aDelegate
+@synthesize dlDelegate = _dlDelegate;
+
+- (id)initWithLastSelectedView:(SmallView *)selectedView urlString:(NSString *)url delegate:(id<DownloadOperationDelegate>)aDelegate
 {
     if (self = [super init]) {
 
         lastSelectedView_ = selectedView;
-        asychDelegate_ = aDelegate;
+        _dlDelegate = aDelegate;
         urlString_ = url;
         executing = NO;
         finished = NO;
@@ -106,7 +107,7 @@
      * On the background thread, downloading data from the specified URL starts asynchronously.
      */
     
-    ASyncURLConnection *conn = [ASyncURLConnection request:urlString_ forDelegate:asychDelegate_ withCache:nil completeBlock:^(NSData *data) {
+    ASyncURLConnection *conn = [ASyncURLConnection request:urlString_ forDelegate:self withCache:nil completeBlock:^(NSData *data) {
         
         dispatch_queue_t queue =
         dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
@@ -125,7 +126,8 @@
                  * Displays the result on the user interface.
                  */
                 
-                lastSelectedView_.imageView.image = [UIImage imageWithData:data];
+                [self.dlDelegate downloadComplete:(NSData *)data forView:lastSelectedView_];
+                
                 [self completeOperation];
 
             });
@@ -144,17 +146,6 @@
     
     return conn;
 }
-
-+ (void)showAlert:(NSString *)theTitle withMessage:(NSString *)theMessage
-{
-    UIAlertView *av = [[UIAlertView alloc] initWithTitle:theTitle
-                                                 message:theMessage
-                                                delegate:nil
-                                       cancelButtonTitle:@"OK"
-                                       otherButtonTitles:nil];
-    [av show];
-}
-
 
 - (void)completeOperation {
     [self willChangeValueForKey:@"isFinished"];
@@ -194,9 +185,16 @@
          * Displays the result on the user interface.
          */
         
-        [[self class] showAlert:@"Timeout" withMessage:[NSString stringWithFormat:@"in quadrant %u.", lastSelectedView_.tag]];
-        
+        [self.dlDelegate timeoutOccuredForView:(UIView *)lastSelectedView_];
+                
     });
+}
+
+#pragma mark - AsyncURLConnectionDelegate Method
+
+- (void)connectionUpdateInBytes:(NSUInteger)current forMaxBytes:(NSUInteger)max
+{
+    [self.dlDelegate connectionUpdateInBytes:current forMaxBytes:max forView:lastSelectedView_];
 }
 
 

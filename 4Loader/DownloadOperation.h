@@ -10,10 +10,19 @@
 #import "ASyncURLConnection.h"
 #import "SmallView.h"
 
-@interface DownloadOperation : NSOperation
+@protocol DownloadOperationDelegate <NSObject>
+
+- (void)connectionUpdateInBytes:(NSUInteger)current forMaxBytes:(NSUInteger)max forView:(UIView *)aView;
+- (void)downloadComplete:(NSData *)data forView:(UIView *)aView;
+- (void)timeoutOccuredForView:(UIView *)aView;
+
+@end
+
+@interface DownloadOperation : NSOperation <ASyncURLConnectionDelegate>
 
 @property (assign, nonatomic) float timeoutValue;
+@property (assign, nonatomic) id<DownloadOperationDelegate> dlDelegate;
 
-- (id)initWithLastSelectedView:(SmallView *)selectedView urlString:(NSString *)url_ delegate:(id<ASyncURLConnectionDelegate>)aDelegate;
+- (id)initWithLastSelectedView:(SmallView *)selectedView urlString:(NSString *)url_ delegate:(id<DownloadOperationDelegate>)aDelegate;
 
 @end
